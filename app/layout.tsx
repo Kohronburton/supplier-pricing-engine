@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./landing.css";
+import "./v6-landing.css";
 import "./v5.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cpq.kohronburton.com"),
-  title: "Supplier Pricing Engine | CPQ Architecture Case Study",
+  title: "Supplier Pricing Engine | Quote Complex Catalogs Without Spreadsheet Pricing",
   description:
-    "A working CPQ architecture case study showing deterministic supplier pricing, versioned rules, compatibility validation, multi-line quoting, margin guardrails, and explainable pricing.",
+    "A working CPQ case study and live demo for supplier-specific price books, validation, freight, margin guardrails, multi-line quotes, and explainable pricing.",
   applicationName: "Supplier Pricing Engine",
   authors: [{ name: "Kohron Burton", url: "https://kohronburton.com" }],
   creator: "Kohron Burton",
@@ -25,9 +26,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Supplier Pricing Engine | CPQ Architecture Case Study",
+    title: "Quote Complex Supplier Catalogs Without Spreadsheet Pricing",
     description:
-      "Different supplier rulebooks. One deterministic quoting workflow. See the architecture decisions, executable proof, and live multi-line CPQ demo.",
+      "One guided quote workflow for different supplier rulebooks—with deterministic pricing, executable tests, margin controls, and a visible audit trail.",
     url: "https://cpq.kohronburton.com",
     siteName: "Supplier Pricing Engine",
     type: "website",
@@ -36,13 +37,13 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Supplier Pricing Engine CPQ architecture case study",
+        alt: "Supplier Pricing Engine CPQ case study and live quote demo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Supplier Pricing Engine | CPQ Architecture Case Study",
+    title: "Quote Complex Supplier Catalogs Without Spreadsheet Pricing",
     description:
       "A deterministic, explainable CPQ pricing engine with a live multi-line quote studio.",
     images: ["/opengraph-image"],
