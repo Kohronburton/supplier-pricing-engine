@@ -13,6 +13,11 @@ const alpha: SupplierRuleSet = {
     maxHeight: 144,
     roundingIncrement: 1,
   },
+  products: [
+    { id: "roller-shade", label: "Roller Shade", description: "Core roller program", multiplier: 1 },
+    { id: "solar-shade", label: "Solar Shade", description: "Performance solar fabric program", multiplier: 1.08 },
+    { id: "roman-shade", label: "Roman Shade", description: "Premium soft-treatment program", multiplier: 1.22 },
+  ],
   fabrics: [
     { id: "standard", label: "Standard", multiplier: 1 },
     { id: "premium", label: "Premium", multiplier: 1.12 },
@@ -58,6 +63,11 @@ const beta: SupplierRuleSet = {
     maxHeight: 132,
     roundingIncrement: 0.5,
   },
+  products: [
+    { id: "roller-shade", label: "Roller Shade", description: "Standard roller program", multiplier: 1 },
+    { id: "solar-shade", label: "Solar Shade", description: "Commercial solar-control program", multiplier: 1.05 },
+    { id: "cellular-shade", label: "Cellular Shade", description: "Energy-efficient cellular program", multiplier: 1.16 },
+  ],
   fabrics: [
     { id: "standard", label: "Standard", multiplier: 1 },
     { id: "premium", label: "Premium", multiplier: 1.09 },
@@ -102,6 +112,11 @@ const gamma: SupplierRuleSet = {
     maxHeight: 150,
     roundingIncrement: 2,
   },
+  products: [
+    { id: "roller-shade", label: "Roller Shade", description: "Core roller program", multiplier: 1 },
+    { id: "solar-shade", label: "Solar Shade", description: "Architectural solar-control program", multiplier: 1.11 },
+    { id: "zebra-shade", label: "Zebra Shade", description: "Dual-layer designer program", multiplier: 1.18 },
+  ],
   fabrics: [
     { id: "standard", label: "Standard", multiplier: 1 },
     { id: "premium", label: "Premium", multiplier: 1.14 },
