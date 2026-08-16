@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./v3.css";
-import "./v4.css";
+import "./landing.css";
+import "./v5.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cpq.kohronburton.com"),
-  title: "Supplier Pricing Engine | CPQ Demo by Kohron Burton",
+  title: "Supplier Pricing Engine | CPQ Architecture Case Study",
   description:
-    "A live CPQ reference implementation for supplier-specific product rules, price grids, compatibility, freight, margins, professional quotes, and explainable pricing.",
+    "A working CPQ architecture case study showing deterministic supplier pricing, versioned rules, compatibility validation, multi-line quoting, margin guardrails, and explainable pricing.",
   applicationName: "Supplier Pricing Engine",
   authors: [{ name: "Kohron Burton", url: "https://kohronburton.com" }],
   creator: "Kohron Burton",
@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     "pricing engine",
     "supplier pricing",
     "rule engine",
+    "quote automation",
     "Next.js",
     "TypeScript",
   ],
@@ -24,9 +25,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Supplier Pricing Engine | Live CPQ Demo",
+    title: "Supplier Pricing Engine | CPQ Architecture Case Study",
     description:
-      "Different supplier rules. One deterministic pricing engine. Configure, validate, price, save, and export a professional quote.",
+      "Different supplier rulebooks. One deterministic quoting workflow. See the architecture decisions, executable proof, and live multi-line CPQ demo.",
     url: "https://cpq.kohronburton.com",
     siteName: "Supplier Pricing Engine",
     type: "website",
@@ -35,15 +36,15 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Supplier Pricing Engine CPQ reference implementation",
+        alt: "Supplier Pricing Engine CPQ architecture case study",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Supplier Pricing Engine | Live CPQ Demo",
+    title: "Supplier Pricing Engine | CPQ Architecture Case Study",
     description:
-      "A deterministic, explainable CPQ pricing engine for complex supplier rules.",
+      "A deterministic, explainable CPQ pricing engine with a live multi-line quote studio.",
     images: ["/opengraph-image"],
   },
 };

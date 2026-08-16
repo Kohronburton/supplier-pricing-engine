@@ -2,60 +2,107 @@
 
 [![CPQ Engine CI](https://github.com/Kohronburton/supplier-pricing-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/Kohronburton/supplier-pricing-engine/actions/workflows/ci.yml)
 
-**Live demo:** https://cpq.kohronburton.com  
+A working **Configure–Price–Quote (CPQ) architecture case study** for custom products where every supplier has a different rulebook.
+
+**Case study:** https://cpq.kohronburton.com  
+**Interactive quote studio:** https://cpq.kohronburton.com/demo  
+**Architecture decisions:** [docs/architecture-decisions.md](docs/architecture-decisions.md)  
 **Built by:** [Kohron Burton](https://kohronburton.com)
 
-A production-minded **Configure–Price–Quote (CPQ) reference implementation** for custom products where every supplier prices differently.
+> **Core principle:** supplier behavior changes frequently; the pricing engine should not have to.
 
-> **Core idea:** supplier behavior belongs in versioned rules and pricing data—not scattered `if/else` logic throughout the application.
+---
 
-## What the demo proves
+## The business problem
 
-The demo goes beyond a pricing calculator. It shows the full path from customer configuration to a professional quote:
+The difficult part of a supplier-heavy quoting system is not drawing the quote screen.
 
-- customer and project information
-- quote number and expiration date
-- supplier-specific product catalogs
-- min/max size validation
-- supplier-specific dimension rounding
-- fabric, motor, control, and option compatibility
-- width/height price-grid resolution
-- product-program adjustments
-- fixed and percentage surcharges
-- standard and conditional freight rules
-- true landed-cost calculation
-- target margin and sell price
-- visible gross profit
-- invalid-configuration blocking
-- explainable calculation trace
-- rule-set and price-table version capture
-- professional quote preview
-- browser quote save
-- direct PDF download
-- crawl metadata, sitemap, robots, and Open Graph social preview
-- automated regression tests and CI
+It is making one sales workflow handle suppliers that disagree about:
 
-## Try these three scenarios
+- minimum and maximum dimensions
+- dimension rounding
+- product availability
+- fabrics, motors, controls, and options
+- incompatible product combinations
+- width × height price grids
+- percentage and fixed surcharges
+- freight and oversize handling
+- target margins and discount policy
 
-The UI includes one-click scenarios designed to make the architecture visible in seconds:
+A simple implementation usually turns into supplier-specific conditions spread across forms, APIs, and pricing code. That becomes expensive to test and risky to change.
 
-| Scenario | What it demonstrates |
+This project demonstrates a different approach: **one deterministic pricing pipeline backed by versioned supplier rules and pricing data.**
+
+---
+
+## The important architecture decisions
+
+| Decision | Why it matters |
 |---|---|
-| Premium motorized | A valid Alpha quote with whole-inch rounding, premium fabric, motor pricing, freight, margin and audit trace |
-| Catch a bad combo | Beta rejects an invalid blackout + motorized combination before a price is produced |
-| Oversize designer | Gamma applies two-inch rounding, Zebra product pricing, smart motorization, oversize/tall freight and commercial margin |
+| **No LLM in the authoritative price path** | The same inputs + rule versions should always produce the same price. Pricing must be reproducible, auditable, and regression-testable. |
+| **Supplier behavior is data-driven** | Adding or changing a supplier should primarily change rule/catalog data, not the core pricing engine. |
+| **Rules and price tables are versioned** | Historical quotes can be reproduced after a supplier publishes new pricing. |
+| **Validation happens before pricing** | A numerical price for an impossible configuration is still a bad quote. Invalid products are blocked upstream. |
+| **Modular monolith first** | The early risk is domain correctness, not service-to-service scale. Split services only when operational boundaries justify it. |
+| **Internal economics are separated from customer output** | Sales sees cost, margin, approvals, and audit data. Customers see a clean quote. |
 
-## Architecture
+See the full reasoning in [Architecture Decisions](docs/architecture-decisions.md).
+
+---
+
+## What V5 proves
+
+The interactive demo now builds an entire job rather than pricing one isolated window.
+
+It supports:
+
+- customer + project information
+- automatic quote number and expiration
+- three supplier rule sets
+- nine supplier-specific product programs
+- multi-room / multi-line quotes
+- quantities per line
+- supplier-specific size rounding
+- product / fabric / motor / option compatibility
+- price-grid lookup
+- product-program adjustments
+- surcharges and freight
+- true landed cost
+- target-margin sell pricing
+- quote-level discounts
+- realized-margin calculation
+- a 30% demo margin floor
+- manager approval workflow for low-margin exceptions
+- deposit and remaining balance
+- rule + price-table provenance per quote line
+- customer-facing quote generation
+- browser save
+- PDF export
+
+### Try it in 60 seconds
+
+1. Open **https://cpq.kohronburton.com/demo**.
+2. Click **Load 3-room demo**.
+3. Review the multi-supplier line items and quote economics.
+4. Increase the quote discount until realized margin falls below the 30% floor.
+5. Request and simulate manager approval.
+6. Generate the customer-facing quote.
+7. Download the PDF.
+8. Load **Catch a bad combo** to see an invalid supplier configuration blocked before pricing.
+
+---
+
+## System architecture
 
 ```mermaid
 flowchart TB
-    subgraph EXPERIENCE["Sales / Quote Experience"]
+    subgraph EXPERIENCE["Sales / Deal Desk Experience"]
         CUSTOMER["Customer + Project"]
-        CONFIG["Product Configurator"]
-        PRICE["Live Deal Desk"]
-        PREVIEW["Professional Quote Preview"]
-        SAVE["Save Quote"]
-        PDF["Download PDF"]
+        BUILDER["Product Configurator"]
+        CART["Multi-line Quote"]
+        TERMS["Discount + Deposit"]
+        APPROVAL["Margin Approval"]
+        OUTPUT["Customer Quote + PDF"]
     end
 
     subgraph API["Application Boundary"]
@@ -72,8 +119,8 @@ flowchart TB
         SUR["6. Fabric / Motor / Option Surcharges"]
         FREIGHT["7. Freight Rules"]
         COST["8. True Landed Cost"]
-        MARGIN["9. Commercial Margin Policy"]
-        TRACE["10. Explainable Calculation Trace"]
+        MARGIN["9. Target-Margin Sell Price"]
+        TRACE["10. Calculation Trace"]
     end
 
     subgraph RULES["Versioned Supplier Rule Registry"]
@@ -86,25 +133,31 @@ flowchart TB
         GRIDS["Price Tables"]
         SURR["Surcharge Rules"]
         FR["Freight Rules"]
-        POLICY["Margin Policy"]
+        POLICY["Margin Defaults"]
+    end
+
+    subgraph COMMERCIAL["Quote Commercial Layer"]
+        AGG["Aggregate Line Items"]
+        DISCOUNT["Quote Discount"]
+        REALIZED["Realized Margin"]
+        GUARD["Margin Guard"]
+        DEPOSIT["Deposit + Balance"]
     end
 
     subgraph PROVENANCE["Quote Provenance"]
         RULEVER["Rule Version"]
         GRIDVER["Price-Table Version"]
-        RESULT["Calculation Snapshot"]
+        SNAPSHOT["Calculation Snapshot"]
     end
 
-    CUSTOMER --> CONFIG
-    CONFIG --> ROUTE --> ZOD --> VALIDATE
+    CUSTOMER --> BUILDER
+    BUILDER --> ROUTE --> ZOD --> VALIDATE
     VALIDATE -->|valid| COMPAT
-    VALIDATE -->|invalid| PRICE
+    VALIDATE -->|invalid| BUILDER
     COMPAT -->|valid| ROUND
-    COMPAT -->|invalid| PRICE
-    ROUND --> GRID --> PRODUCT --> SUR --> FREIGHT --> COST --> MARGIN --> TRACE --> PRICE
-    PRICE --> PREVIEW
-    PREVIEW --> SAVE
-    PREVIEW --> PDF
+    COMPAT -->|invalid| BUILDER
+    ROUND --> GRID --> PRODUCT --> SUR --> FREIGHT --> COST --> MARGIN --> TRACE
+    TRACE --> CART
 
     ALPHA --> PRODUCTS
     BETA --> PRODUCTS
@@ -137,12 +190,19 @@ flowchart TB
     FR --> FREIGHT
     POLICY --> MARGIN
 
+    CART --> AGG --> DISCOUNT --> REALIZED --> GUARD --> DEPOSIT --> TERMS
+    GUARD -->|below floor| APPROVAL
+    APPROVAL -->|approved| OUTPUT
+    GUARD -->|within policy| OUTPUT
+
     TRACE --> RULEVER
     TRACE --> GRIDVER
-    TRACE --> RESULT
+    TRACE --> SNAPSHOT
 ```
 
-## Pricing pipeline
+---
+
+## Pricing flow for one line item
 
 ```text
 Customer configuration
@@ -169,17 +229,21 @@ True landed cost
         ↓
 Target-margin sell price
         ↓
-Explainable quote result
+Versioned calculation trace
         ↓
-Professional quote → Save → PDF
+Quote line item
 ```
+
+The quote layer then aggregates line items and applies quote-level commercial controls such as discount, realized margin, approval, deposit, and balance.
+
+---
 
 ## Example: explainable pricing
 
 ```text
 Input size:                   73.25 × 80.10 in
 Supplier rounding:            next whole inch
-Supplier size:                74 × 81 in
+Supplier price size:          74 × 81 in
 
 Price table:                  alpha-2026-q3
 Grid base:                    $524.00
@@ -189,122 +253,124 @@ Freight:                      +$55.00
 ------------------------------------------------
 True landed cost:             $826.88
 Target margin:                38%
-Customer price:               $1,333.68
+Unit sell price:              $1,333.68
 ```
 
-The successful quote also stores the exact `ruleVersion` and `gridVersion`, which is critical when supplier pricing changes after a quote was created.
-
-## Multi-product supplier catalog
-
-V4 removes the single disabled-product limitation. Each supplier now owns a product program:
-
-- **Alpha:** Roller, Solar, Roman
-- **Beta:** Roller, Solar, Cellular
-- **Gamma:** Roller, Solar, Zebra
-
-The same pricing engine executes all of them. Product behavior is supplier data, not a separate application flow.
-
-## Invalid configurations fail before pricing
-
-Example: Supplier Beta rejects Blackout fabric with its Motorized control.
+The successful result also carries:
 
 ```text
-Configuration blocked
-└── Motorized is not compatible with Blackout fabric for Supplier Beta.
+ruleVersion: alpha-rules-v1
+gridVersion: alpha-2026-q3
 ```
 
-That is intentional. A CPQ system should prevent invalid orders upstream instead of letting them become downstream fulfillment problems.
+That provenance is retained per quote line.
 
-## Quote workflow
+---
 
-A valid configuration can be turned into a quote with:
+## Automated proof
 
-1. customer and project information
-2. quote number and 30-day validity window
-3. professional on-screen preview
-4. local browser save for demo persistence
-5. one-click PDF export
-6. rule and price-table provenance on the quote
+The repository currently contains **9 automated Vitest test cases** across pricing and quote commercial behavior.
 
-The PDF is generated client-side without placing an LLM or external document service in the authoritative pricing path.
+Coverage includes:
+
+- the documented Alpha reference quote
+- supplier rounding differences
+- supplier dimension restrictions
+- fabric/motor compatibility failures
+- supplier-specific product pricing
+- rule + grid version capture
+- multi-line quote aggregation
+- discount + deposit math
+- margin-floor approval behavior
+
+GitHub Actions runs:
+
+```text
+npm install
+   ↓
+Vitest regression suite
+   ↓
+Next.js production build
+```
+
+before the PR is merged.
+
+---
 
 ## Repository structure
 
 ```text
 app/
-├── api/quote/route.ts       # validated quote API
-├── page.tsx                 # interactive CPQ + quote workflow
-├── globals.css
-├── v3.css
-├── v4.css                   # V4 product/quote presentation
-├── opengraph-image.tsx      # generated social preview
+├── api/quote/route.ts             # validated quote API
+├── components/quote-studio.tsx    # V5 multi-line quote application
+├── demo/page.tsx                  # interactive demo route
+├── page.tsx                       # architecture case-study landing page
+├── landing.css
+├── v5.css
+├── opengraph-image.tsx
 ├── robots.ts
 └── sitemap.ts
 
 src/
-├── domain/models.ts         # typed CPQ domain model
-├── engine/pricing-engine.ts # supplier-agnostic calculation pipeline
-├── suppliers/rules.ts       # supplier rules, catalogs and grids
+├── domain/models.ts               # typed CPQ domain model
+├── engine/pricing-engine.ts       # supplier-agnostic pricing pipeline
+├── quote/quote-math.ts            # quote-level commercial calculations
+├── suppliers/rules.ts             # supplier rules, products, price grids
 └── validation/quote-schema.ts
 
 tests/
-└── pricing-engine.test.ts   # regression coverage
+├── pricing-engine.test.ts
+└── quote-math.test.ts
+
+docs/
+├── architecture-decisions.md
+└── adding-a-supplier.md
 ```
-
-## Adding another supplier
-
-The design goal is simple:
-
-> **Adding Supplier Delta should mean adding product/rule/pricing data—not rewriting the pricing engine.**
-
-See [Adding a Supplier Without Rewriting the Engine](docs/adding-a-supplier.md).
-
-## Technology
-
-- Next.js 15
-- React 19
-- TypeScript
-- Zod
-- Vitest
-- GitHub Actions
-- Vercel
-- Custom domain: `cpq.kohronburton.com`
-
-Production evolution would typically add PostgreSQL-backed rule/catalog persistence, supplier spreadsheet imports, authentication/RBAC, approval workflows, quote history, payment processing, and order creation.
-
-## Quick start
-
-```bash
-git clone https://github.com/Kohronburton/supplier-pricing-engine.git
-cd supplier-pricing-engine
-npm install
-npm run dev
-```
-
-Open `http://localhost:3000`.
-
-Run regression tests:
-
-```bash
-npm test
-```
-
-Run a production build:
-
-```bash
-npm run build
-```
-
-## Design principles
-
-- **Deterministic:** no LLM controls authoritative pricing.
-- **Supplier-agnostic core:** suppliers provide rule/data definitions.
-- **Explainable:** every meaningful pricing step produces a trace.
-- **Versionable:** quotes retain rule and price-table versions.
-- **Fail-fast:** invalid configurations are blocked before pricing.
-- **Testable:** supplier edge cases live in automated regression tests.
-- **Extensible:** product catalogs and supplier rules can grow without duplicating the quoting workflow.
 
 ---
 
-Built by **[Kohron Burton](https://kohronburton.com)** · [View the live demo](https://cpq.kohronburton.com) · [View source](https://github.com/Kohronburton/supplier-pricing-engine)
+## Where AI belongs
+
+AI can be valuable around the deterministic engine:
+
+```text
+Supplier PDF / XLSX / CSV
+        ↓
+AI-assisted extraction
+        ↓
+Proposed product + rule mapping
+        ↓
+Human review / validation
+        ↓
+Versioned published rule set
+        ↓
+Deterministic pricing engine
+```
+
+The LLM assists with ingestion. It does **not** become the authority for price or product validity.
+
+---
+
+## Production evolution
+
+The demo intentionally avoids pretending to be a finished ERP. A production build would evolve in phases:
+
+1. PostgreSQL-backed suppliers, products, rule versions, price grids, customers, quotes, and immutable audit snapshots.
+2. Supplier catalog import and publishing workflows for CSV/XLSX/PDF data.
+3. Authentication and role-based access for sales, pricing administrators, approvers, and operations.
+4. Durable quote lifecycle: draft → approval → sent → accepted → revised → ordered.
+5. Stripe or another payment provider with webhooks, idempotency, reconciliation, and order handoff.
+6. Observability around rule misses, invalid configurations, price changes, and supplier-data quality.
+7. Optional AI-assisted catalog ingestion with human review before publication.
+
+The architecture is designed so those capabilities can be added without replacing the core pricing model.
+
+---
+
+## Adding another supplier
+
+The design target is simple:
+
+> **Adding Supplier Delta should mean adding product, rule, and pricing data—not rewriting the core pricing engine.**
+
+See [Adding a Supplier Without Rewriting the Engine](docs/adding-a-supplier.md).
