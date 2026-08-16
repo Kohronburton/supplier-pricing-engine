@@ -48,9 +48,9 @@ export default function Home() {
             </div>
             <span>3 suppliers</span>
           </div>
-          <SupplierExample name="Alpha" rule="Round to 1\"" normalized="74 × 81" detail="Premium +12% · Motor +$185" />
-          <SupplierExample name="Beta" rule="Round to 0.5\"" normalized="73.5 × 80.5" detail="Different grid · Different freight" />
-          <SupplierExample name="Gamma" rule="Round to 2\"" normalized="74 × 82" detail="Product program changes base price" />
+          <SupplierExample name="Alpha" rule={'Round to 1"'} normalized="74 × 81" detail="Premium +12% · Motor +$185" />
+          <SupplierExample name="Beta" rule={'Round to 0.5"'} normalized="73.5 × 80.5" detail="Different grid · Different freight" />
+          <SupplierExample name="Gamma" rule={'Round to 2"'} normalized="74 × 82" detail="Product program changes base price" />
           <div className="cs-visual-result">
             <span>The goal</span>
             <strong>One sales workflow. Different rule sets underneath.</strong>
