@@ -66,8 +66,13 @@ function validateCompatibility(
   trace: CalculationTraceStep[],
 ): string[] {
   const errors: string[] = [];
+  const product = supplier.products.find((item) => item.id === config.product);
   const fabric = supplier.fabrics.find((item) => item.id === config.fabric);
   const control = supplier.controls.find((item) => item.id === config.controlType);
+
+  if (!product) {
+    errors.push(`Product '${config.product}' is not available from ${supplier.name}.`);
+  }
 
   if (!fabric) {
     errors.push(`Fabric '${config.fabric}' is not available from ${supplier.name}.`);
@@ -107,7 +112,7 @@ function validateCompatibility(
     stage: "compatibility",
     message:
       errors.length === 0
-        ? `Fabric, control, and option compatibility checks passed.`
+        ? `Product, fabric, control, and option compatibility checks passed.`
         : `Compatibility validation failed with ${errors.length} issue${errors.length === 1 ? "" : "s"}.`,
   });
 
@@ -169,9 +174,16 @@ export function calculateQuote(config: ProductConfiguration): QuoteResult {
     };
   }
 
+  const product = supplier.products.find((item) => item.id === config.product)!;
+  const gridBaseCost = roundCurrency(gridCell.baseCost);
+  const productAdjustment = roundCurrency(
+    gridBaseCost * Math.max(0, product.multiplier - 1),
+  );
+  const baseCost = roundCurrency(gridBaseCost + productAdjustment);
+
   trace.push({
     stage: "grid",
-    message: `${supplier.gridVersion} matched grid ceiling ${gridCell.maxWidth}\" × ${gridCell.maxHeight}\" at $${gridCell.baseCost.toFixed(2)}.`,
+    message: `${supplier.gridVersion} matched ${gridCell.maxWidth}\" × ${gridCell.maxHeight}\" at $${gridBaseCost.toFixed(2)}. ${product.label} applies ${product.multiplier === 1 ? "no product adjustment" : `a ${((product.multiplier - 1) * 100).toFixed(0)}% product adjustment`}.`,
   });
 
   const fabric = supplier.fabrics.find((item) => item.id === config.fabric)!;
@@ -181,7 +193,7 @@ export function calculateQuote(config: ProductConfiguration): QuoteResult {
   );
 
   const fabricSurcharge = roundCurrency(
-    gridCell.baseCost * Math.max(0, fabric.multiplier - 1),
+    baseCost * Math.max(0, fabric.multiplier - 1),
   );
   const controlSurcharge = roundCurrency(control.fixedSurcharge);
   const optionSurcharge = roundCurrency(
@@ -213,7 +225,7 @@ export function calculateQuote(config: ProductConfiguration): QuoteResult {
   });
 
   const trueCost = roundCurrency(
-    gridCell.baseCost +
+    baseCost +
       fabricSurcharge +
       controlSurcharge +
       optionSurcharge +
@@ -247,7 +259,9 @@ export function calculateQuote(config: ProductConfiguration): QuoteResult {
       height: normalizedHeight,
     },
     pricing: {
-      baseCost: gridCell.baseCost,
+      gridBaseCost,
+      productAdjustment,
+      baseCost,
       fabricSurcharge,
       controlSurcharge,
       optionSurcharge,
