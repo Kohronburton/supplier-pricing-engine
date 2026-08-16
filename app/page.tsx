@@ -12,9 +12,9 @@ export default function Home() {
           </div>
         </a>
         <div className="cs-nav-links">
+          <a href="#business">Business value</a>
           <a href="#case-study">Case study</a>
           <a href="#proof">Proof</a>
-          <a href={`${github}/tree/main/tests`} target="_blank" rel="noreferrer">Tests ↗</a>
           <a className="cs-nav-cta" href="/demo">Launch demo</a>
         </div>
       </nav>
@@ -22,21 +22,21 @@ export default function Home() {
       <header className="cs-hero" id="top">
         <div className="cs-hero-copy">
           <span className="cs-kicker">CPQ ARCHITECTURE CASE STUDY</span>
-          <h1>Pricing gets messy when every supplier has a different rulebook.</h1>
+          <h1>Quote complex supplier catalogs without spreadsheet pricing or mystery math.</h1>
           <p>
-            This reference implementation shows how I would turn supplier price books,
-            size rules, compatibility restrictions, freight, and margin policy into one
-            predictable quoting workflow—without hiding pricing logic inside the UI.
+            One guided sales flow can handle different supplier price books, size rules,
+            compatibility restrictions, freight, and margin policy. Underneath, pricing
+            stays deterministic, versioned, testable, and explainable—no LLM decides the price.
           </p>
           <div className="cs-actions">
             <a className="cs-primary" href="/demo">Open the live quote studio</a>
-            <a className="cs-secondary" href={github} target="_blank" rel="noreferrer">View the source ↗</a>
+            <a className="cs-secondary" href={github} target="_blank" rel="noreferrer">Inspect the source ↗</a>
           </div>
           <div className="cs-trust-row">
-            <span>Deterministic price path</span>
-            <span>Versioned supplier rules</span>
-            <span>Automated regression tests</span>
-            <span>Explainable quotes</span>
+            <span>Fewer manual lookups</span>
+            <span>Invalid orders blocked early</span>
+            <span>Margin guardrails</span>
+            <span>Every price explainable</span>
           </div>
         </div>
 
@@ -57,6 +57,26 @@ export default function Home() {
           </div>
         </aside>
       </header>
+
+      <section className="cs-business-bridge" id="business">
+        <div className="cs-section-intro compact">
+          <span className="cs-kicker">WHY THIS MATTERS TO A BUSINESS</span>
+          <h2>The architecture is useful only if it makes quoting safer and easier to operate.</h2>
+          <p>
+            For teams still moving between supplier PDFs, spreadsheets, and tribal knowledge,
+            this pattern creates one controlled path from configuration to customer quote.
+          </p>
+        </div>
+        <div className="cs-business-grid">
+          <BusinessCard title="Quote faster" text="One guided workflow replaces repeated manual price-book lookups and spreadsheet formulas." />
+          <BusinessCard title="Prevent order errors" text="Invalid size, fabric, motor, and option combinations are stopped before purchasing or fulfillment." />
+          <BusinessCard title="Protect margin" text="Quote discounts recalculate realized margin and can require approval before the quote is finalized." />
+          <BusinessCard title="Change suppliers safely" text="Versioned rules and price books preserve how an old quote was calculated even after pricing changes." />
+        </div>
+        <p className="cs-evidence-note">
+          This is a reference implementation, not a fabricated client case study. I am showing the operating pattern and the executable proof rather than inventing savings numbers.
+        </p>
+      </section>
 
       <section className="cs-story" id="case-study">
         <div className="cs-section-intro">
@@ -123,7 +143,7 @@ export default function Home() {
             <strong>Giant supplier if/else chains</strong>
             <strong>Pricing logic in React components</strong>
             <strong>Opaque AI-generated prices</strong>
-            <strong>Microservices for a problem that does not need them yet</strong>
+            <strong>Microservices before the problem needs them</strong>
           </div>
         </div>
       </section>
@@ -146,22 +166,14 @@ export default function Home() {
         </div>
 
         <div className="cs-pipeline">
-          <span>Configuration</span>
-          <b>→</b>
-          <span>Validation</span>
-          <b>→</b>
-          <span>Compatibility</span>
-          <b>→</b>
-          <span>Rounding</span>
-          <b>→</b>
-          <span>Price grid</span>
-          <b>→</b>
-          <span>Surcharges</span>
-          <b>→</b>
-          <span>Freight</span>
-          <b>→</b>
-          <span>Margin</span>
-          <b>→</b>
+          <span>Configuration</span><b>→</b>
+          <span>Validation</span><b>→</b>
+          <span>Compatibility</span><b>→</b>
+          <span>Rounding</span><b>→</b>
+          <span>Price grid</span><b>→</b>
+          <span>Surcharges</span><b>→</b>
+          <span>Freight</span><b>→</b>
+          <span>Margin</span><b>→</b>
           <span>Quote</span>
         </div>
       </section>
@@ -171,13 +183,27 @@ export default function Home() {
           <span className="cs-kicker">NOW TRY IT</span>
           <h2>The case study explains the judgment. The demo proves the behavior.</h2>
           <p>
-            Build a multi-room quote, switch suppliers, trigger an invalid combination,
-            apply a discount, hit the margin guard, and generate the customer-facing output.
+            The demo opens with a pre-priced Alpha configuration, so the calculation trail
+            and price breakdown are visible immediately. Then build a multi-room quote,
+            switch suppliers, trigger a rule conflict, and test the margin guard.
           </p>
         </div>
         <div className="cs-actions">
           <a className="cs-primary" href="/demo">Launch interactive demo</a>
           <a className="cs-secondary" href={`${github}/blob/main/docs/architecture-decisions.md`} target="_blank" rel="noreferrer">Read architecture decisions ↗</a>
+        </div>
+      </section>
+
+      <section className="cs-convert">
+        <span className="cs-kicker">NEED THIS FOR YOUR SUPPLIER CATALOG?</span>
+        <h2>Let&apos;s turn the rulebook into a system your sales team can actually use.</h2>
+        <p>
+          I can help scope the supplier model, pricing rules, quote workflow, approval controls,
+          integrations, and production architecture.
+        </p>
+        <div className="cs-actions">
+          <a className="cs-primary" href="https://kohronburton.com" target="_blank" rel="noreferrer">Contact Kohron →</a>
+          <a className="cs-secondary" href={github} target="_blank" rel="noreferrer">View source ↗</a>
         </div>
       </section>
 
@@ -196,6 +222,15 @@ function SupplierExample({ name, rule, normalized, detail }: { name: string; rul
       <div><small>PRICE SIZE</small><strong>{normalized}</strong></div>
       <span>{detail}</span>
     </div>
+  );
+}
+
+function BusinessCard({ title, text }: { title: string; text: string }) {
+  return (
+    <article className="cs-business-card">
+      <strong>{title}</strong>
+      <p>{text}</p>
+    </article>
   );
 }
 
