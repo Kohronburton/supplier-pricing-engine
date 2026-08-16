@@ -1,8 +1,54 @@
 # Supplier Pricing Engine
 
-A configurable **CPQ (Configure–Price–Quote) reference architecture** for supplier-specific window-covering pricing, product validation, price-grid lookup, surcharges, freight, margins, and explainable quoting.
+![CPQ Engine CI](https://github.com/Kohronburton/supplier-pricing-engine/actions/workflows/ci.yml/badge.svg)
+
+A configurable **CPQ (Configure–Price–Quote) reference implementation** for supplier-specific window-covering pricing, product validation, price-grid lookup, surcharges, freight, margins, and explainable quoting.
 
 > **Core principle:** supplier-specific behavior is configuration and data—not scattered application conditionals.
+
+## What is implemented
+
+The repository now includes an executable Next.js/TypeScript demo with:
+
+- three suppliers with intentionally different pricing behavior
+- min/max dimension validation
+- supplier-specific dimension rounding
+- fabric, control, motor, and option compatibility rules
+- width/height price-grid resolution
+- fixed and percentage surcharges
+- standard and conditional freight rules
+- true landed-cost calculation
+- target-margin / sell-price calculation
+- rule-set and price-grid version metadata
+- explainable calculation traces
+- Zod API boundary validation
+- automated Vitest regression tests
+- GitHub Actions build/test validation
+
+The interactive workbench recalculates as configuration changes and blocks invalid combinations before a price is produced.
+
+## Quick start
+
+```bash
+git clone https://github.com/Kohronburton/supplier-pricing-engine.git
+cd supplier-pricing-engine
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+Run the pricing regression suite:
+
+```bash
+npm test
+```
+
+Build the production application:
+
+```bash
+npm run build
+```
 
 ## Why this exists
 
@@ -47,7 +93,7 @@ flowchart TB
         direction LR
         ALPHA["Supplier Alpha<br/>Whole-inch rounding<br/>Motor min width<br/>Premium fabric %"]
         BETA["Supplier Beta<br/>Half-inch rounding<br/>Fabric/motor restrictions<br/>Fixed motor surcharge"]
-        GAMMA["Supplier Gamma<br/>Band pricing<br/>Control-based pricing<br/>Custom surcharge rules"]
+        GAMMA["Supplier Gamma<br/>2-inch rounding<br/>Band pricing<br/>Custom surcharge rules"]
         DELTA["Supplier Delta<br/>Add config + pricing data<br/>No core-engine rewrite"]
     end
 
@@ -158,9 +204,9 @@ Margin / sell-price policy
 Explainable quote result
 ```
 
-## Explainable pricing
+## Reference quote
 
-The engine returns both the price and the reasoning used to calculate it:
+The default Alpha scenario intentionally exercises multiple stages of the engine:
 
 ```text
 Input width:                 73.25 in
@@ -171,10 +217,10 @@ Input height:                80.10 in
 Supplier rounding rule:     next whole inch
 Normalized height:          81 in
 
-Price grid:                  Alpha 2026-Q3
+Price grid:                  alpha-2026-q3
 Grid match:                  W74 × H81
 Base cost:                   $524.00
-Premium fabric surcharge:   +12%
+Premium fabric surcharge:   +$62.88
 Motorization:                +$185.00
 Freight:                     +$55.00
 ------------------------------------------------
@@ -183,7 +229,24 @@ Target margin:               38%
 Final sell price:            $1,333.68
 ```
 
-This trace is intended to make support, audit, supplier disputes, and regression testing significantly easier.
+The output also records the exact `ruleVersion` and `gridVersion` used, so a historical quote can be reproduced after supplier pricing changes.
+
+## Invalid configuration example
+
+A 24-inch-wide Alpha shade with a motorized control is blocked before pricing because Alpha motorization requires a minimum 30-inch width.
+
+```text
+Configuration blocked
+└── Motorized requires a minimum width of 30" for Supplier Alpha.
+```
+
+This is deliberate: invalid product combinations should fail before price calculation, not become downstream order problems.
+
+## Supplier extension model
+
+`src/suppliers/rules.ts` contains typed supplier definitions. `src/engine/pricing-engine.ts` contains the supplier-agnostic execution pipeline.
+
+Adding a supplier should primarily require a new rule/data definition rather than edits to the engine. See [Adding a Supplier Without Rewriting the Engine](docs/adding-a-supplier.md).
 
 ## Design goals
 
@@ -199,10 +262,29 @@ This trace is intended to make support, audit, supplier disputes, and regression
 | Supplier | Rounding | Pricing | Key Rules |
 |---|---|---|---|
 | Alpha | Next whole inch | Width/height grid | Motor minimum width, premium-fabric percentage, oversize freight |
-| Beta | Next 1/2 inch | Width/height grid | Fabric/motor compatibility, fixed motor surcharge |
-| Gamma | Band-based | Width/height bands | Control-based pricing, custom surcharge policies |
+| Beta | Next 1/2 inch | Width/height grid | Fabric/motor incompatibility, fixed motor surcharge |
+| Gamma | Next 2 inches | Width/height grid | Different size bands, smart-motor restrictions, large-format freight |
 
-## Planned production evolution
+## Repository structure
+
+```text
+app/
+├── api/quote/route.ts       # validated quote endpoint
+├── globals.css              # polished demo workbench UI
+├── layout.tsx
+└── page.tsx                 # interactive configurator + quote trace
+
+src/
+├── domain/models.ts         # CPQ domain contracts
+├── engine/pricing-engine.ts # supplier-agnostic rule executor
+├── suppliers/rules.ts       # Alpha/Beta/Gamma rule sets + price grids
+└── validation/quote-schema.ts
+
+tests/
+└── pricing-engine.test.ts   # pricing + compatibility regression tests
+```
+
+## Production evolution
 
 ```mermaid
 flowchart LR
@@ -214,15 +296,15 @@ flowchart LR
     AUDIT --> PAYMENT["Payments + Order Workflow"]
 ```
 
-## Technology direction
+A production implementation would move supplier definitions and price grids from TypeScript fixtures into a versioned PostgreSQL model, add catalog-import workflows, preserve immutable quote calculation snapshots, and layer customer approval/payment/order workflows above the deterministic pricing core.
 
-- Next.js + React + TypeScript
-- Zod for boundary validation
-- Tailwind CSS for the demo UI
-- Vitest for pricing regression tests
-- PostgreSQL for production supplier/rule/catalog persistence
-- Stripe for production payment flow
+## Technology
 
-## Status
-
-The repository is being built as an executable architecture demonstration. The first milestone is a working supplier-agnostic pricing pipeline with Alpha/Beta/Gamma rule sets, explainable calculations, invalid-configuration handling, and automated tests.
+- Next.js
+- React
+- TypeScript
+- Zod
+- Vitest
+- GitHub Actions
+- PostgreSQL planned for production persistence
+- Stripe planned for payment workflow
