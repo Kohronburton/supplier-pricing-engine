@@ -2,7 +2,13 @@ import { z } from "zod";
 
 export const quoteRequestSchema = z.object({
   supplier: z.enum(["alpha", "beta", "gamma"]),
-  product: z.literal("roller-shade"),
+  product: z.enum([
+    "roller-shade",
+    "solar-shade",
+    "roman-shade",
+    "cellular-shade",
+    "zebra-shade",
+  ]),
   width: z.coerce.number().positive(),
   height: z.coerce.number().positive(),
   fabric: z.enum(["standard", "premium", "blackout"]),

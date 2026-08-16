@@ -24,6 +24,8 @@ describe("supplier pricing engine", () => {
     expect(result.normalizedDimensions).toEqual({ width: 74, height: 81 });
     expect(result.gridVersion).toBe("alpha-2026-q3");
     expect(result.pricing).toMatchObject({
+      gridBaseCost: 524,
+      productAdjustment: 0,
       baseCost: 524,
       fabricSurcharge: 62.88,
       controlSurcharge: 185,
@@ -84,6 +86,27 @@ describe("supplier pricing engine", () => {
 
     expect(result.normalizedDimensions).toEqual({ width: 72, height: 100 });
     expect(result.gridVersion).toBe("gamma-2026-h2");
+  });
+
+  it("applies supplier-specific product-program pricing", () => {
+    const result = calculateQuote({
+      supplier: "gamma",
+      product: "zebra-shade",
+      width: 72,
+      height: 100,
+      fabric: "standard",
+      controlType: "manual",
+      options: [],
+      targetMargin: 0.36,
+    });
+
+    expect(result.valid).toBe(true);
+    if (!result.valid) return;
+
+    expect(result.pricing.gridBaseCost).toBe(470);
+    expect(result.pricing.productAdjustment).toBe(84.6);
+    expect(result.pricing.baseCost).toBe(554.6);
+    expect(result.trace.find((step) => step.stage === "grid")?.message).toContain("18% product adjustment");
   });
 
   it("keeps supplier rule and grid versions on every successful quote", () => {

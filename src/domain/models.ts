@@ -1,11 +1,17 @@
 export type SupplierId = "alpha" | "beta" | "gamma";
+export type ProductId =
+  | "roller-shade"
+  | "solar-shade"
+  | "roman-shade"
+  | "cellular-shade"
+  | "zebra-shade";
 export type FabricId = "standard" | "premium" | "blackout";
 export type ControlId = "manual" | "motorized" | "smart";
 export type OptionId = "cassette" | "valance" | "side-channel";
 
 export interface ProductConfiguration {
   supplier: SupplierId;
-  product: "roller-shade";
+  product: ProductId;
   width: number;
   height: number;
   fabric: FabricId;
@@ -20,6 +26,13 @@ export interface DimensionRules {
   minHeight: number;
   maxHeight: number;
   roundingIncrement: number;
+}
+
+export interface ProductRule {
+  id: ProductId;
+  label: string;
+  description: string;
+  multiplier: number;
 }
 
 export interface PriceGridCell {
@@ -64,6 +77,7 @@ export interface SupplierRuleSet {
   gridVersion: string;
   effectiveFrom: string;
   dimensions: DimensionRules;
+  products: ProductRule[];
   fabrics: FabricRule[];
   controls: ControlRule[];
   options: OptionRule[];
@@ -86,6 +100,8 @@ export interface CalculationTraceStep {
 }
 
 export interface PricingBreakdown {
+  gridBaseCost: number;
+  productAdjustment: number;
   baseCost: number;
   fabricSurcharge: number;
   controlSurcharge: number;
