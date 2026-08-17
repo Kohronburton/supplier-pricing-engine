@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   },
 };
 
+const site = "https://cpq.kohronburton.com";
+
 const initialQuote = calculateQuote({
   supplier: "alpha",
   product: "roller-shade",
@@ -32,7 +34,7 @@ export default function DemoPage() {
     <>
       <main className="v6-demo-shell">
         <nav className="v6-demo-nav">
-          <a href="/" className="v6-demo-brand">
+          <a href={site} className="v6-demo-brand">
             <span>SP</span>
             <div>
               <strong>Supplier Pricing Engine</strong>
@@ -40,7 +42,7 @@ export default function DemoPage() {
             </div>
           </a>
           <div>
-            <a href="/">Case study</a>
+            <a href={site}>Read case study</a>
             <a href="https://github.com/Kohronburton/supplier-pricing-engine" target="_blank" rel="noreferrer">Source ↗</a>
             <a className="v6-contact-link" href="https://kohronburton.com" target="_blank" rel="noreferrer">Need this? Contact →</a>
           </div>
@@ -103,12 +105,15 @@ export default function DemoPage() {
       <QuoteStudio />
 
       <section className="v6-final-cta">
-        <span className="v6-kicker">FROM PROOF-OF-CONCEPT TO PRODUCTION</span>
-        <h2>Need this pattern for your supplier catalog?</h2>
-        <p>I can help scope the rule model, supplier onboarding path, quote workflow, integrations, and production architecture.</p>
+        <span className="v6-kicker">FOR WINDOW TREATMENT + MADE-TO-ORDER TEAMS</span>
+        <h2>Quoting across supplier catalogs should not depend on spreadsheets and tribal knowledge.</h2>
+        <p>
+          If you sell window treatments, custom products, or distributor catalogs with supplier-specific pricing,
+          I can help design the rule model, supplier onboarding path, quote workflow, approvals, integrations, and production architecture.
+        </p>
         <div>
-          <a className="v6-primary" href="https://kohronburton.com" target="_blank" rel="noreferrer">Contact Kohron →</a>
-          <a className="v6-secondary" href="https://github.com/Kohronburton/supplier-pricing-engine" target="_blank" rel="noreferrer">Inspect the source ↗</a>
+          <a className="v6-primary" href="https://kohronburton.com" target="_blank" rel="noreferrer">Discuss your quoting workflow →</a>
+          <a className="v6-secondary" href={site}>Read the case study</a>
         </div>
       </section>
     </>
