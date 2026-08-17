@@ -1,4 +1,5 @@
 const github = "https://github.com/Kohronburton/supplier-pricing-engine";
+const site = "https://cpq.kohronburton.com";
 
 export default function Home() {
   return (
@@ -15,7 +16,7 @@ export default function Home() {
           <a href="#business">Business value</a>
           <a href="#case-study">Case study</a>
           <a href="#proof">Proof</a>
-          <a className="cs-nav-cta" href="/demo">Launch demo</a>
+          <a className="cs-nav-cta" href={`${site}/demo`}>Launch demo</a>
         </div>
       </nav>
 
@@ -29,7 +30,7 @@ export default function Home() {
             stays deterministic, versioned, testable, and explainable—no LLM decides the price.
           </p>
           <div className="cs-actions">
-            <a className="cs-primary" href="/demo">Open the live quote studio</a>
+            <a className="cs-primary" href={`${site}/demo`}>Open the live quote studio</a>
             <a className="cs-secondary" href={github} target="_blank" rel="noreferrer">Inspect the source ↗</a>
           </div>
           <div className="cs-trust-row">
@@ -189,26 +190,26 @@ export default function Home() {
           </p>
         </div>
         <div className="cs-actions">
-          <a className="cs-primary" href="/demo">Launch interactive demo</a>
+          <a className="cs-primary" href={`${site}/demo`}>Launch interactive demo</a>
           <a className="cs-secondary" href={`${github}/blob/main/docs/architecture-decisions.md`} target="_blank" rel="noreferrer">Read architecture decisions ↗</a>
         </div>
       </section>
 
       <section className="cs-convert">
-        <span className="cs-kicker">NEED THIS FOR YOUR SUPPLIER CATALOG?</span>
-        <h2>Let&apos;s turn the rulebook into a system your sales team can actually use.</h2>
+        <span className="cs-kicker">FOR WINDOW TREATMENT + MADE-TO-ORDER TEAMS</span>
+        <h2>Quoting across supplier catalogs should not depend on spreadsheets and tribal knowledge.</h2>
         <p>
-          I can help scope the supplier model, pricing rules, quote workflow, approval controls,
-          integrations, and production architecture.
+          If your team sells window treatments, custom products, or distributor catalogs with supplier-specific pricing,
+          I can help turn the rulebook into a production quoting workflow—from supplier modeling and price grids through approvals, integrations, and deployment.
         </p>
         <div className="cs-actions">
-          <a className="cs-primary" href="https://kohronburton.com" target="_blank" rel="noreferrer">Contact Kohron →</a>
+          <a className="cs-primary" href="https://kohronburton.com" target="_blank" rel="noreferrer">Discuss your quoting workflow →</a>
           <a className="cs-secondary" href={github} target="_blank" rel="noreferrer">View source ↗</a>
         </div>
       </section>
 
       <footer className="cs-footer">
-        <span>Supplier Pricing Engine · CPQ architecture case study</span>
+        <span>Canonical project: <a href={site}>cpq.kohronburton.com</a> · case study + live demo</span>
         <span>Built by <a href="https://kohronburton.com" target="_blank" rel="noreferrer">Kohron Burton ↗</a></span>
       </footer>
     </main>
